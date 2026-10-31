@@ -149,6 +149,34 @@ tests/                 unit tests against a fake MCP server
 .github/workflows/     unittest + ruff on 3.9 and 3.13
 ```
 
+## Distributing
+
+`dist/` holds the same knowledge packaged for someone else: a self-contained
+skill for a person who runs `bitcoin-node-mcp` against **their own** node. No
+`agent-mcp`, no tokens, no paths or URLs from this stack — nothing that would
+401 on a stranger's machine.
+
+```
+dist/bitcoin-node/     SKILL.md + references/tools.md + README.md
+dist/package.sh        zips a package into <name>.zip
+```
+
+```sh
+./dist/package.sh              # every package -> dist/<name>.zip
+./dist/package.sh bitcoin-node # just one
+```
+
+The zip is the upload shape a marketplace expects: one top-level folder with
+`SKILL.md` at its root, text files only, no symlinks, no dotfiles. Zips are
+gitignored — regenerate them, don't commit them.
+
+Keep the two directories distinct in your head:
+
+| Directory | For | Contains |
+| --- | --- | --- |
+| `skills/` | this stack | `agent-mcp` calls, token files, our URLs |
+| `dist/` | anyone else | their MCP server, their node, no credentials |
+
 ## Adding a server
 
 1. Add an entry to `servers.json` with its `url` (expandable), its `token_env`
