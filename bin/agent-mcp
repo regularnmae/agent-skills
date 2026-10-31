@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+"""Entry point for `agent-mcp`; the work lives in lib/cli.py."""
+
+import sys
+from pathlib import Path
+
+# Resolve the symlink install.sh drops in ~/.local/bin, so `lib/` is found
+# from the checkout either way.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
+
+from cli import main  # noqa: E402
+
+if __name__ == "__main__":
+    sys.exit(main())
