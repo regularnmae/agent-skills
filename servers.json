@@ -1,22 +1,32 @@
 {
   "bitcoin-node": {
-    "url": "https://mcp.boltmesh.net/bitcoin",
-    "token_env": "AGENT_MCP_BITCOIN_NODE_TOKEN"
+    "url": "${AGENT_MCP_BASE_URL:-https://mcp.boltmesh.net}/bitcoin",
+    "token_env": "AGENT_MCP_BITCOIN_NODE_TOKEN",
+    "token_file": "${STACK_DATA_DIR:-/data/stack}/config/bitcoin-node-mcp/token.env",
+    "token_var": "BITCOIN_MCP_TOKEN"
   },
   "monero-node": {
-    "url": "https://mcp.boltmesh.net/monero",
-    "token_env": "AGENT_MCP_MONERO_NODE_TOKEN"
+    "url": "${AGENT_MCP_BASE_URL:-https://mcp.boltmesh.net}/monero",
+    "token_env": "AGENT_MCP_MONERO_NODE_TOKEN",
+    "token_file": "${STACK_DATA_DIR:-/data/stack}/config/monero-node-mcp/token.env",
+    "token_var": "MONERO_MCP_TOKEN"
   },
   "monero-wallet": {
-    "url": "https://mcp.boltmesh.net/monero-wallet",
-    "token_env": "AGENT_MCP_MONERO_WALLET_TOKEN"
+    "url": "${AGENT_MCP_BASE_URL:-https://mcp.boltmesh.net}/monero-wallet",
+    "token_env": "AGENT_MCP_MONERO_WALLET_TOKEN",
+    "token_file": "${STACK_DATA_DIR:-/data/stack}/config/monero-wallet-mcp/token.env",
+    "token_var": "MONERO_MCP_TOKEN"
   },
   "lightning": {
-    "url": "https://mcp.boltmesh.net/lightning",
-    "token_env": "AGENT_MCP_LIGHTNING_TOKEN"
+    "url": "${AGENT_MCP_BASE_URL:-https://mcp.boltmesh.net}/lightning",
+    "token_env": "AGENT_MCP_LIGHTNING_TOKEN",
+    "token_file": "${STACK_DATA_DIR:-/data/stack}/config/lightning-mcp/token.env",
+    "token_var": "LIGHTNING_MCP_TOKEN"
   },
   "searxng": {
-    "url": "https://mcp.boltmesh.net/searxng",
-    "token_env": "AGENT_MCP_SEARXNG_TOKEN"
+    "url": "${AGENT_MCP_BASE_URL:-https://mcp.boltmesh.net}/searxng",
+    "token_env": "AGENT_MCP_SEARXNG_TOKEN",
+    "token_file": "${STACK_DATA_DIR:-/data/stack}/config/searxng-mcp/token.env",
+    "token_var": "SEARXNG_MCP_TOKEN"
   }
 }

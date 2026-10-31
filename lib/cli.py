@@ -8,7 +8,7 @@ import os
 import sys
 from typing import Any
 
-from config import load_servers, token_for
+from config import load_servers, resolve_url, token_for
 from mcp_http import DEFAULT_TIMEOUT, MCPClient, MCPError
 
 
@@ -69,7 +69,7 @@ def main(argv: list[str] | None = None) -> int:
 
     entry = servers[options.server]
     timeout = options.timeout or float(os.environ.get("AGENT_MCP_TIMEOUT", DEFAULT_TIMEOUT))
-    client = MCPClient(entry["url"], token_for(entry), timeout=timeout)
+    client = MCPClient(resolve_url(entry), token_for(entry), timeout=timeout)
 
     try:
         client.initialize()

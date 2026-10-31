@@ -57,6 +57,10 @@ if [ ! -f "$env_file" ]; then
 # Namespaced on purpose: harnesses export the servers' own *_MCP_TOKEN names
 # into the shell, sometimes with tokens that no longer match the live config,
 # and those must not shadow what is set here.
+#
+# A server whose servers.json entry declares token_file reads the stack's own
+# token.env on every call, so its line here can stay empty -- and should, since
+# a copied token goes stale the moment the stack rotates it.
 AGENT_MCP_BITCOIN_NODE_TOKEN=
 AGENT_MCP_MONERO_NODE_TOKEN=
 AGENT_MCP_MONERO_WALLET_TOKEN=
@@ -71,6 +75,7 @@ if [ "$from_opencode" = 1 ]; then
   python3 - "$root" "$env_file" <<'PY'
 import json
 import os
+import re
 import sys
 
 root, env_path = sys.argv[1], sys.argv[2]
@@ -82,12 +87,23 @@ try:
 except (OSError, KeyError) as err:
     raise SystemExit(f"install.sh: cannot read the opencode config: {err}") from None
 
-values = {}
+# opencode keeps the secret out of its own config as `{env:NAME}`, resolved at
+# start-up. Copying that literal text would write a placeholder as the token and
+# every call would 401, so resolve it against this shell. Anything that still
+# resolves to nothing is skipped rather than written empty.
+ENV_REF = re.compile(r"^\{env:([A-Za-z_][A-Za-z0-9_]*)\}$")
+
+values, skipped = {}, []
 for name, entry in registry.items():
     header = (servers.get(name) or {}).get("headers", {}).get("Authorization", "")
     token = header.split(None, 1)[1] if header.lower().startswith("bearer ") else header
+    ref = ENV_REF.match(token)
+    if ref:
+        token = os.environ.get(ref.group(1), "")
     if token:
         values[entry["token_env"]] = token
+    else:
+        skipped.append(name)
 
 lines = open(env_path).read().splitlines()
 written, out = set(), []
@@ -106,5 +122,12 @@ with open(env_path, "w") as handle:
     handle.write("\n".join(out).rstrip("\n") + "\n")
 os.chmod(env_path, 0o600)
 print(f"install.sh: seeded {len(values)} token(s) into {env_path}")
+if skipped:
+    print(
+        "install.sh: no token for " + ", ".join(skipped) +
+        " -- they read ${STACK_DATA_DIR}/config/<server>/token.env when the"
+        " registry declares token_file, so this is only a problem for a host"
+        " without the stack's config",
+    )
 PY
 fi

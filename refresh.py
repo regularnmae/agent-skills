@@ -19,7 +19,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "lib"))
 
-from config import load_servers, token_for  # noqa: E402
+from config import load_servers, resolve_url, token_for  # noqa: E402
 from mcp_http import MCPClient, MCPError  # noqa: E402
 
 START = "<!-- tools:start -->"
@@ -65,7 +65,7 @@ def main(argv: list[str]) -> int:
         if not skill.exists():
             print(f"refresh: no skill for {name} ({skill.relative_to(ROOT)})", file=sys.stderr)
             continue
-        client = MCPClient(entry["url"], token_for(entry))
+        client = MCPClient(resolve_url(entry), token_for(entry))
         try:
             client.initialize()
             body = render(client.tools())

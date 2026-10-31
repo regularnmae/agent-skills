@@ -36,12 +36,23 @@ That links every skill into each harness already present (`~/.config/opencode`,
 `~/.codex`, `~/.claude`), puts `agent-mcp` in `~/.local/bin`, and seeds
 `~/.config/agent-skills/env` from an existing opencode config. Without
 `--from-opencode` the env file is created empty for you to fill in.
+`--from-opencode` resolves opencode's `{env:NAME}` references against the shell
+instead of copying the placeholder, so a config that keeps its secrets in the
+environment seeds real tokens.
 
-Tokens live in `~/.config/agent-skills/env` (mode 600) or in the environment
-under the names in `servers.json`; nothing secret is committed here. Those names
-are all prefixed `AGENT_MCP_` on purpose: harnesses export the servers' own
-`*_MCP_TOKEN` variables into the shell, often with tokens that no longer match
-the live config, and a skill must not pick those up instead of its own file.
+A server resolved in this order: the environment (`AGENT_MCP_*`), then the file
+named by its `token_file` in `servers.json`, then `~/.config/agent-skills/env`.
+`token_file` outranks the env file on purpose -- it is how the stack's own
+`token.env` is read, on every call, with no copy to go stale when a token is
+rotated. On such a host `~/.config/agent-skills/env` can stay empty.
+
+`url` is expanded like a shell string: `$VAR`, `${VAR}` and `${VAR:-default}`,
+plus `~`. That is what keeps the endpoint list honest -- set one
+`AGENT_MCP_BASE_URL` and every server moves with it. Nothing secret is
+committed here. The token env names are all prefixed `AGENT_MCP_` on purpose:
+harnesses export the servers' own `*_MCP_TOKEN` variables into the shell, often
+with tokens that no longer match the live config, and a skill must not pick
+those up instead of its own source.
 
 ## Use
 
@@ -84,7 +95,7 @@ Hand-editing a table is what makes skills lie six months later; don't.
 bin/agent-mcp          the CLI the skills tell the model to run
 lib/mcp_http.py        MCP streamable-HTTP client, stdlib only
 lib/config.py          server registry + token lookup
-servers.json           server name -> url + token env var (keys match skills/)
+servers.json           server name -> url, token env var, optional token file
 skills/<name>/SKILL.md one per server
 refresh.py             regenerate the tool tables from tools/list
 install.sh             link skills into harnesses, install the CLI
@@ -92,7 +103,9 @@ install.sh             link skills into harnesses, install the CLI
 
 ## Adding a server
 
-1. Add an entry to `servers.json` with its URL and token env var.
+1. Add an entry to `servers.json` with its `url` (expandable), its `token_env`
+   name, and -- when the token lives in a file rather than the shell or the env
+   file -- `token_file` and the `token_var` to read from it.
 2. Add `skills/<same-name>/SKILL.md` with the `tools:start`/`tools:end` markers.
 3. Run `python3 refresh.py`, then `./install.sh`.
 
