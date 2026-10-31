@@ -1,6 +1,6 @@
 ---
 name: lightning
-description: Read a Core Lightning node from a shell -- channels, peers, funds, invoices, payments -- and decode BOLT11 invoices. Read-only in this deployment. Use when the native lightning MCP tools are not available in this harness.
+description: Read a Core Lightning node -- channels, peers, funds, invoices, payments -- and decode BOLT11 invoices, through the read-only lightning MCP server or the agent-mcp CLI. Use for node and channel state, payment history, and what a BOLT11 invoice commits to before anyone pays it.
 ---
 
 # Lightning
@@ -16,8 +16,9 @@ agent-mcp lightning --list
 **Read tools only here**: no `pay`, `invoice`, `keysend`, `withdraw` or
 `close` on this deployment. `decode` is local and safe -- it never pays.
 
-**If this session already has native `lightning` MCP tools, prefer them.**
-This skill calls the same server.
+**Native `lightning` tools are the fastest path when this harness has them.**
+`agent-mcp` is the same server for harnesses without MCP; the notes below apply
+either way.
 
 ## Using it
 

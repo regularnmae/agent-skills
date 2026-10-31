@@ -1,6 +1,6 @@
 ---
 name: monero-wallet
-description: Read a Monero wallet's balance, addresses, accounts, transfers and payments through the monero-wallet MCP server from a shell. Read-only in this deployment. Use when the native monero-wallet MCP tools are not available in this harness.
+description: Read a Monero wallet's balance, addresses, accounts, transfers and payments through the read-only monero-wallet MCP server or the agent-mcp CLI. Use to confirm what a wallet holds and whether a transfer arrived, and to check sync height before trusting a balance.
 ---
 
 # Monero wallet
@@ -16,8 +16,9 @@ agent-mcp monero-wallet --list
 creation. Do not treat this skill as a way to move funds; a spend is an
 operator action outside these tools, not something to work around here.
 
-**If this session already has native `monero-wallet` MCP tools, prefer them.**
-This skill calls the same server.
+**Native `monero-wallet` tools are the fastest path when this harness has them.**
+`agent-mcp` is the same server for harnesses without MCP; the notes below apply
+either way.
 
 ## Reading the wallet
 

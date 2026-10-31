@@ -63,6 +63,12 @@ def resolve_url(entry: dict[str, str]) -> str:
     return _expand(entry.get("url", ""))
 
 
+def token_file_path(entry: dict[str, str]) -> Path | None:
+    """Where `token_file` points, expanded, when the registry declares one."""
+    path = entry.get("token_file", "")
+    return Path(_expand(path)) if path else None
+
+
 def token_file_value(entry: dict[str, str]) -> str:
     """The token from `token_file`, when the registry declares one.
 
@@ -70,12 +76,12 @@ def token_file_value(entry: dict[str, str]) -> str:
     so rotating a token needs no second edit here. The file holds `KEY="value"`
     or `KEY=value` lines, the shape the stack writes for every server.
     """
-    path = entry.get("token_file", "")
+    path = token_file_path(entry)
     var = entry.get("token_var", "")
-    if not path or not var:
+    if path is None or not var:
         return ""
     try:
-        text = Path(_expand(path)).read_text()
+        text = path.read_text()
     except OSError:
         return ""
     pattern = re.compile(rf"^{re.escape(var)}=\"?([^\"#\n]*)\"?\s*$", re.MULTILINE)
@@ -83,18 +89,32 @@ def token_file_value(entry: dict[str, str]) -> str:
     return match.group(1).strip() if match else ""
 
 
+def token_source(entry: dict[str, str]) -> tuple[str, str]:
+    """The bearer token and the name of the place it came from.
+
+    One of `env`, `token_file`, `env_file` or `none`. `agent-mcp doctor` reports
+    the source and never the token, which is what makes a 401 diagnosable.
+    """
+    name = entry.get("token_env", "")
+    if not name:
+        return "none", ""
+    value = os.environ.get(name, "")
+    if value:
+        return "env", value
+    value = token_file_value(entry)
+    if value:
+        return "token_file", value
+    value = read_env_file().get(name, "")
+    if value:
+        return "env_file", value
+    return "none", ""
+
+
 def token_for(entry: dict[str, str]) -> str:
-    """The bearer token: the environment, then `token_file`, then the env file.
+    """The bearer token from whichever source wins.
 
     `token_file` outranks the env file on purpose -- a copy in
     ~/.config/agent-skills/env goes stale the moment a token is rotated, and the
     stack's token.env is the authority.
     """
-    name = entry.get("token_env", "")
-    if not name:
-        return ""
-    return (
-        os.environ.get(name)
-        or token_file_value(entry)
-        or read_env_file().get(name, "")
-    )
+    return token_source(entry)[1]

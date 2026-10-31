@@ -1,6 +1,6 @@
 ---
 name: monero-node
-description: Query a Monero daemon from a shell -- height, blocks, transactions, fee estimates, pool stats -- through the read-only monero-node MCP server. Use when the native monero-node MCP tools are not available in this harness.
+description: Query a Monero daemon -- height, blocks, transactions, fee estimates, pool stats -- through the read-only monero-node MCP server or the agent-mcp CLI. Use for chain state, sync progress and transaction lookups, and to tell a restricted-RPC refusal from a real failure.
 ---
 
 # Monero node
@@ -14,8 +14,9 @@ agent-mcp monero-node get_block height=3500000
 agent-mcp monero-node --list
 ```
 
-**If this session already has native `monero-node` MCP tools, prefer them.**
-This skill calls the same server.
+**Native `monero-node` tools are the fastest path when this harness has them.**
+`agent-mcp` is the same server for harnesses without MCP; the notes below apply
+either way.
 
 ## What to expect
 

@@ -7,6 +7,19 @@
 #   ./install.sh --target DIR       # link into one more skills directory
 set -euo pipefail
 
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "install.sh: python3 is required" >&2
+  exit 1
+fi
+python3 - <<'PY'
+import sys
+
+if sys.version_info < (3, 9):
+    raise SystemExit(
+        f"install.sh: python3 >= 3.9 is required, found {sys.version.split()[0]}"
+    )
+PY
+
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 extra=()
 from_opencode=0
@@ -15,7 +28,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --from-opencode) from_opencode=1 ;;
     --target) shift; extra+=("$1") ;;
-    -h|--help) sed -n '2,8p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,7p' "$0"; exit 0 ;;
     *) echo "install.sh: unknown argument $1" >&2; exit 2 ;;
   esac
   shift
@@ -46,6 +59,29 @@ done
 mkdir -p "$HOME/.local/bin"
 ln -sfn "$root/bin/agent-mcp" "$HOME/.local/bin/agent-mcp"
 echo "install.sh: linked agent-mcp into $HOME/.local/bin"
+
+# A token file the whole host can read is a token file that has leaked. The
+# stack writes these 0600; say so when one is not.
+python3 - "$root" <<'PY'
+import stat
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(sys.argv[1]) / "lib"))
+from config import load_servers, token_file_path
+
+for _, entry in load_servers().items():
+    path = token_file_path(entry)
+    if path is None or not path.exists():
+        continue
+    mode = stat.S_IMODE(path.stat().st_mode)
+    if mode & 0o077:
+        print(
+            f"install.sh: warning: {path} is group/other-readable ({oct(mode)});"
+            " chmod 600 it",
+            file=sys.stderr,
+        )
+PY
 
 env_file="$HOME/.config/agent-skills/env"
 if [ ! -f "$env_file" ]; then

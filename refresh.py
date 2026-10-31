@@ -6,6 +6,10 @@ table in a skill quietly starts lying. This rewrites the block between the
 `<!-- tools:start -->` and `<!-- tools:end -->` markers in each skill whose
 directory name matches a key in `servers.json`.
 
+It also refuses to write a table that would contradict the skills' read-only
+prose: if a server starts advertising a spending tool, that is a stop, not a
+table update.
+
     python3 refresh.py            # rewrite the tables
     python3 refresh.py --check    # exit 1 when anything is stale (for CI)
 """
@@ -24,6 +28,29 @@ from mcp_http import MCPClient, MCPError  # noqa: E402
 
 START = "<!-- tools:start -->"
 END = "<!-- tools:end -->"
+
+# The skills promise read-only access. If one of these ever shows up in
+# `tools/list`, the promise is false and no table should paper over it.
+SPEND_TOOLS = frozenset(
+    {
+        "transfer",
+        "sweep_all",
+        "sweep_below",
+        "create_address",
+        "pay",
+        "payinvoice",
+        "keysend",
+        "invoice",
+        "withdraw",
+        "close",
+        "close_channel",
+    }
+)
+
+
+def spend_tools(tools: list[dict[str, Any]]) -> list[str]:
+    """Advertised spending tools, sorted; empty for a read-only server."""
+    return sorted({tool.get("name", "") for tool in tools} & SPEND_TOOLS)
 
 
 def render(tools: list[dict[str, Any]]) -> str:
@@ -68,10 +95,20 @@ def main(argv: list[str]) -> int:
         client = MCPClient(resolve_url(entry), token_for(entry))
         try:
             client.initialize()
-            body = render(client.tools())
+            tools = client.tools()
         except MCPError as err:
             print(f"refresh: {name}: {err}", file=sys.stderr)
             return 1
+
+        spend = spend_tools(tools)
+        if spend:
+            print(
+                f"refresh: {name} advertises a spending tool ({', '.join(spend)});"
+                " the skill says read-only, so fix the prose or the server first",
+                file=sys.stderr,
+            )
+            return 1
+        body = render(tools)
 
         current = skill.read_text()
         updated = splice(current, body, name)

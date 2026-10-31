@@ -1,6 +1,6 @@
 ---
 name: bitcoin-node
-description: Query a Bitcoin Core full node from a shell -- blocks, transactions, mempool, fee estimates, peers -- through the read-only bitcoin-node MCP server. Use when the native bitcoin-node MCP tools are not available in this harness, or when the node's txindex behaviour needs spelling out.
+description: Query a Bitcoin Core full node -- blocks, transactions, mempool, fee estimates, peers -- through the read-only bitcoin-node MCP server or the agent-mcp CLI. Use for chain-state and transaction questions, and for the txindex and block-verbosity caveats that change how you answer them.
 ---
 
 # Bitcoin node
@@ -20,8 +20,9 @@ agent-mcp bitcoin-node --list
 `~/.local/bin/agent-mcp`. A tool returns text: a scalar bare, an object as
 pretty-printed JSON. Pipe it through `jq` when you need a field.
 
-**If this session already has native `bitcoin-node` MCP tools, prefer them.**
-This skill calls the same server; what it adds is the notes below.
+**Native `bitcoin-node` tools are the fastest path when this harness has them.**
+`agent-mcp` is the same server for harnesses without MCP; the notes below apply
+either way.
 
 ## The node
 

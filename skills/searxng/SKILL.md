@@ -1,6 +1,6 @@
 ---
 name: searxng
-description: Search the web and read what it finds -- pages, PDFs, RSS feeds, archive snapshots, time zones -- through a self-hosted SearXNG MCP server from a shell. Use when the native searxng MCP tools are not available in this harness.
+description: Search the web and read what it finds -- pages, PDFs, RSS feeds, archive snapshots, time zones -- through a self-hosted SearXNG MCP server or the agent-mcp CLI. Use to look a fact up and to fetch the source before stating it, or to read a page that changed or vanished.
 ---
 
 # SearXNG
@@ -12,8 +12,9 @@ agent-mcp searxng fetch_pdf url=https://arxiv.org/pdf/2401.00001
 agent-mcp searxng --list
 ```
 
-**If this session already has native `searxng` MCP tools, prefer them.**
-This skill calls the same server.
+**Native `searxng` tools are the fastest path when this harness has them.**
+`agent-mcp` is the same server for harnesses without MCP; the notes below apply
+either way.
 
 ## How to use it
 

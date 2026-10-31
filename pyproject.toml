@@ -1,6 +1,6 @@
 [project]
 name = "agent-skills"
-version = "0.1.0"
+version = "0.2.0"
 description = "Agent skills wrapping this stack's read-only crypto MCP servers"
 requires-python = ">=3.9"
 
@@ -16,6 +16,6 @@ target-version = "py39"
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.pyright]
-include = ["lib", "refresh.py"]
+include = ["lib", "refresh.py", "tests"]
 extraPaths = ["lib"]
 pythonVersion = "3.9"
