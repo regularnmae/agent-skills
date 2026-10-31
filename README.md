@@ -38,7 +38,10 @@ That links every skill into each harness already present (`~/.config/opencode`,
 `--from-opencode` the env file is created empty for you to fill in.
 
 Tokens live in `~/.config/agent-skills/env` (mode 600) or in the environment
-under the names in `servers.json`; nothing secret is committed here.
+under the names in `servers.json`; nothing secret is committed here. Those names
+are all prefixed `AGENT_MCP_` on purpose: harnesses export the servers' own
+`*_MCP_TOKEN` variables into the shell, often with tokens that no longer match
+the live config, and a skill must not pick those up instead of its own file.
 
 ## Use
 

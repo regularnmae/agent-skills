@@ -53,11 +53,15 @@ if [ ! -f "$env_file" ]; then
   cat > "$env_file" <<'EOF'
 # Bearer tokens for the MCP servers, one per line. Fill these in, or re-run
 # install.sh --from-opencode to copy them out of opencode's config.
-BITCOIN_MCP_TOKEN=
-MONERO_NODE_MCP_TOKEN=
-MONERO_WALLET_MCP_TOKEN=
-LIGHTNING_MCP_TOKEN=
-SEARXNG_MCP_TOKEN=
+#
+# Namespaced on purpose: harnesses export the servers' own *_MCP_TOKEN names
+# into the shell, sometimes with tokens that no longer match the live config,
+# and those must not shadow what is set here.
+AGENT_MCP_BITCOIN_NODE_TOKEN=
+AGENT_MCP_MONERO_NODE_TOKEN=
+AGENT_MCP_MONERO_WALLET_TOKEN=
+AGENT_MCP_LIGHTNING_TOKEN=
+AGENT_MCP_SEARXNG_TOKEN=
 EOF
   chmod 600 "$env_file"
   echo "install.sh: created $env_file"

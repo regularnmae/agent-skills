@@ -1,22 +1,22 @@
 {
   "bitcoin-node": {
     "url": "https://mcp.boltmesh.net/bitcoin",
-    "token_env": "BITCOIN_MCP_TOKEN"
+    "token_env": "AGENT_MCP_BITCOIN_NODE_TOKEN"
   },
   "monero-node": {
     "url": "https://mcp.boltmesh.net/monero",
-    "token_env": "MONERO_NODE_MCP_TOKEN"
+    "token_env": "AGENT_MCP_MONERO_NODE_TOKEN"
   },
   "monero-wallet": {
     "url": "https://mcp.boltmesh.net/monero-wallet",
-    "token_env": "MONERO_WALLET_MCP_TOKEN"
+    "token_env": "AGENT_MCP_MONERO_WALLET_TOKEN"
   },
   "lightning": {
     "url": "https://mcp.boltmesh.net/lightning",
-    "token_env": "LIGHTNING_MCP_TOKEN"
+    "token_env": "AGENT_MCP_LIGHTNING_TOKEN"
   },
   "searxng": {
     "url": "https://mcp.boltmesh.net/searxng",
-    "token_env": "SEARXNG_MCP_TOKEN"
+    "token_env": "AGENT_MCP_SEARXNG_TOKEN"
   }
 }
