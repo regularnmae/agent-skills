@@ -1,13 +1,13 @@
 ---
 name: crypto-stack
-description: Answer questions about this crypto stack as a whole -- health, sync heights, fee sanity, and verifying a payment across Bitcoin, Lightning and Monero -- using the bitcoin-node, lightning, monero-node and monero-wallet tools or the agent-mcp CLI. Use when a question spans more than one server, or when a number from one needs checking against another.
+description: Answer questions about this crypto stack as a whole -- health, sync heights, fee sanity, and verifying a payment across Bitcoin, Lightning and Monero -- using the bitcoin-node, fulcrum, lightning, monero-node and monero-wallet tools or the agent-mcp CLI. Use when a question spans more than one server, or when a number from one needs checking against another.
 ---
 
 # The stack as a whole
 
-Four servers, one per layer: `bitcoin-node`, `lightning`, `monero-node`,
-`monero-wallet`. Each has its own skill for its tools; this one holds the
-playbooks that span them.
+Five servers, one per layer: `bitcoin-node`, `fulcrum` (Bitcoin's address
+index), `lightning`, `monero-node`, `monero-wallet`. Each has its own skill for
+its tools; this one holds the playbooks that span them.
 
 Every command is `agent-mcp <server> <tool>`; when this harness has the native
 MCP tools, call the same tool name directly. Nothing here moves funds.
@@ -16,6 +16,7 @@ MCP tools, call the same tool name directly. Nothing here moves funds.
 
 ```sh
 agent-mcp bitcoin-node get_blockchain_info
+agent-mcp fulcrum get_chain_tip
 agent-mcp lightning getinfo
 agent-mcp monero-node get_info
 agent-mcp monero-wallet get_height
@@ -27,6 +28,7 @@ Read them together, not one at a time:
 | --- | --- | --- |
 | `bitcoin-node` `initialblockdownload` | `false` | `true`: heights are provisional |
 | `bitcoin-node` `verificationprogress` | ~1.0 | below 0.999: still validating |
+| `fulcrum` `get_chain_tip` height | within a few blocks of bitcoin `blocks` | far behind: the index is still catching up |
 | `lightning` `blockheight` | within a few blocks of bitcoin `blocks` | far behind: CLN is not following the tip |
 | `monero-node` `height` vs `target_height` | equal | below it: the daemon is catching up |
 | `monero-node` `synchronized` | `true` | `false`: answers are provisional |
@@ -65,6 +67,18 @@ agent-mcp bitcoin-node get_tx_out txid=<64 hex> n=<vout>
 `confirmations` is the answer to "did it land"; `get_tx_out` is the answer to
 "is that output still unspent". A txid in the mempool has zero confirmations
 and is not final.
+
+For an **address** rather than a txid, `bitcoind` has no index; use Fulcrum:
+
+```sh
+agent-mcp fulcrum get_address_history address=<addr>
+agent-mcp fulcrum get_address_utxos address=<addr>
+agent-mcp fulcrum get_address_balance address=<addr>
+```
+
+`get_chain_tip` is the height that history is complete to. If it lags
+`bitcoin-node`'s `blocks`, a "no history" answer for a recent payment means
+"not indexed yet", not "not sent".
 
 **Monero**
 

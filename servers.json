@@ -23,6 +23,12 @@
     "token_file": "${STACK_DATA_DIR:-/data/stack}/config/lightning-mcp/token.env",
     "token_var": "LIGHTNING_MCP_TOKEN"
   },
+  "fulcrum": {
+    "url": "${AGENT_MCP_BASE_URL:-https://mcp.boltmesh.net}/fulcrum",
+    "token_env": "AGENT_MCP_FULCRUM_TOKEN",
+    "token_file": "${STACK_DATA_DIR:-/data/stack}/config/fulcrum-mcp/token.env",
+    "token_var": "FULCRUM_MCP_TOKEN"
+  },
   "searxng": {
     "url": "${AGENT_MCP_BASE_URL:-https://mcp.boltmesh.net}/searxng",
     "token_env": "AGENT_MCP_SEARXNG_TOKEN",
