@@ -46,5 +46,11 @@
     "token_env": "AGENT_MCP_VICTORIAMETRICS_TOKEN",
     "token_file": "${STACK_DATA_DIR:-/data/stack}/config/victoriametrics-mcp/token.env",
     "token_var": "METRICS_MCP_TOKEN"
+  },
+  "crowdsec": {
+    "url": "${AGENT_MCP_BASE_URL:-https://mcp.boltmesh.net}/crowdsec",
+    "token_env": "AGENT_MCP_CROWDSEC_TOKEN",
+    "token_file": "${STACK_DATA_DIR:-/data/stack}/config/crowdsec-mcp/token.env",
+    "token_var": "CROWDSEC_MCP_TOKEN"
   }
 }
