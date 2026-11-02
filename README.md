@@ -3,9 +3,9 @@
 Agent skills that put the crypto MCP servers of this stack behind a shell
 command, so any agent can use them -- not just the harnesses that speak MCP.
 
-Ten skills: one per server -- `bitcoin-node`, `monero-node`, `monero-wallet`,
+Eleven skills: one per server -- `bitcoin-node`, `monero-node`, `monero-wallet`,
 `lightning`, `searxng`, `fulcrum`, `victoria-logs`, `victoriametrics`,
-`crowdsec` -- plus `crypto-stack`, the
+`crowdsec`, `btcpay` -- plus `crypto-stack`, the
 playbooks that span them (health, heights, fees, verifying a payment across
 layers). They are
 **read-only by construction**: they call the same servers whose tool sets are
@@ -24,8 +24,8 @@ stdlib client that speaks MCP over HTTP.
 It buys two things:
 
 - **It works in harnesses without MCP** (Codex, scripts, CI, a plain shell).
-- **It costs no context when unused.** Nine always-resident MCP servers are
-  ~76 tool schemas in every request; the ten skills are ten descriptions
+- **It costs no context when unused.** Ten always-resident MCP servers are
+  ~88 tool schemas in every request; the eleven skills are eleven descriptions
   until one is loaded.
 
 It does **not** remove infrastructure: the servers, their gateway and their

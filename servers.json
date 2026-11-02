@@ -52,5 +52,11 @@
     "token_env": "AGENT_MCP_CROWDSEC_TOKEN",
     "token_file": "${STACK_DATA_DIR:-/data/stack}/config/crowdsec-mcp/token.env",
     "token_var": "CROWDSEC_MCP_TOKEN"
+  },
+  "btcpay": {
+    "url": "${AGENT_MCP_BASE_URL:-https://mcp.boltmesh.net}/btcpay",
+    "token_env": "AGENT_MCP_BTCPAY_TOKEN",
+    "token_file": "${STACK_DATA_DIR:-/data/stack}/config/btcpay-mcp/token.env",
+    "token_var": "BTCPAY_MCP_TOKEN"
   }
 }

@@ -46,10 +46,14 @@ Full node, mainnet, every block on disk, `txindex` enabled.
 | Tool | Arguments | Does |
 | --- | --- | --- |
 | `get_blockchain_info` | — | Return the node's chain state. |
+| `get_index_info` | `index_name?`, `verbose?` | Return the node's index build state, txindex included. |
 | `get_block_hash` | `height` | Return the block hash at a height. |
 | `get_block` | `blockhash`, `verbosity?` | Return a block by hash. |
 | `get_block_header` | `blockhash`, `verbose?` | Return a block header by block hash. |
+| `get_block_stats` | `height` | Return fee and transaction statistics for one block. |
+| `get_fee_history` | `blocks?` | Return per-block feerate history for the most recent blocks. |
 | `get_raw_transaction` | `txid`, `blockhash?`, `verbose?` | Return a transaction by id. |
+| `get_mempool_entry` | `txid` | Return one unconfirmed transaction's mempool entry. |
 | `decode_raw_transaction` | `hexstring` | Decode a serialised (hex) transaction into a JSON object. |
 | `get_mempool_info` | — | Return statistics about the node's transaction mempool. |
 | `get_raw_mempool` | `verbose?` | List the transaction ids currently in the mempool. |
