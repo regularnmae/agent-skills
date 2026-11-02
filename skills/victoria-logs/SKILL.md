@@ -71,7 +71,7 @@ container:"lightningd" | stats count() as n   a pipe
 | `search_logs` | `query`, `since?`, `limit?` | Search the log store with a LogsQL query, newest entries first. |
 | `tail_logs` | `since?`, `limit?` | Return the most recent entries from every source, newest first. |
 | `top_sources` | `since?`, `limit?` | Count log entries per container in the window, busiest first. |
-| `error_summary` | `since?`, `limit?` | Count error-and-worse entries per container and unit. |
+| `error_summary` | `since?`, `limit?` | Summarise error-and-worse lines as bursts per container and unit. |
 | `list_field_values` | `field?`, `since?`, `limit?` | List the distinct values of a field, most frequent first. |
 | `get_log_health` | — | Report whether the log pipeline is still shipping. |
 | `get_context` | `at?`, `container?`, `before?`, `after?`, `limit?` | Read the entries around one instant, oldest first. |
@@ -89,6 +89,12 @@ container:"lightningd" | stats count() as n   a pipe
   monitor fails on the same condition.
 - **Retention is finite.** 14 days / 10 GiB by default. An empty answer for an
   old window may mean the entries were deleted, not that nothing happened.
+- **`error_summary` counts bursts, not lines.** journald writes one entry per
+  line, so a traceback is many "errors". Each group reports `minutes` (one-minute
+  buckets with at least one error -- the incident-shaped number), `entries` (raw
+  line volume) and `peak` (the busiest minute); `window_minutes` is the window's
+  length, so `minutes: 360` over `since=6h` means every minute, i.e. background
+  noise rather than thirty incidents.
 - **Names are exact.** `bitcoind` and `bitcoin-node-mcp` are different sources,
   and a container name that does not exist returns an empty search rather than
   an error. `list_field_values field=container` is how you check a name.
