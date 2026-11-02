@@ -34,5 +34,11 @@
     "token_env": "AGENT_MCP_SEARXNG_TOKEN",
     "token_file": "${STACK_DATA_DIR:-/data/stack}/config/searxng-mcp/token.env",
     "token_var": "SEARXNG_MCP_TOKEN"
+  },
+  "victoria-logs": {
+    "url": "${AGENT_MCP_BASE_URL:-https://mcp.boltmesh.net}/logs",
+    "token_env": "AGENT_MCP_VICTORIA_LOGS_TOKEN",
+    "token_file": "${STACK_DATA_DIR:-/data/stack}/config/victoria-logs-mcp/token.env",
+    "token_var": "LOGS_MCP_TOKEN"
   }
 }
