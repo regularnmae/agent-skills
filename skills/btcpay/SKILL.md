@@ -15,7 +15,7 @@ pay out, generate a receiving address or broadcast a transaction.
 agent-mcp btcpay get_btcpay_health
 agent-mcp btcpay list_stores
 agent-mcp btcpay list_invoices status=Settled take=10
-agent-mcp btcpay list_invoices start_date=2026-11-01T00:00:00Z include_payment_methods=true
+agent-mcp btcpay list_invoices start_date=1793491200 include_payment_methods=true
 agent-mcp btcpay get_invoice invoice_id=AzCB7tdFKukm8dFCAuC8jc
 agent-mcp btcpay get_invoice_payment_methods invoice_id=AzCB7tdFKukm8dFCAuC8jc
 agent-mcp btcpay get_wallet_balance
@@ -53,8 +53,9 @@ An **invoice** is one checkout attempt. `status` is one of `New`,
 `Processing`, `Expired`, `Invalid` or `Settled`; `amount` is in the invoice's
 own `currency` (usually USD), and `paidAmount` is what has been paid so far.
 `createdTime`, `expirationTime` and `monitoringExpiration` are **Unix
-seconds**. Amounts, rates and balances are **decimal strings** -- do not turn
-them into floats and do not round them.
+seconds**; `start_date`/`end_date` take the same form (an RFC3339 instant is
+converted, but the native form is the epoch). Amounts, rates and balances are
+**decimal strings** -- do not turn them into floats and do not round them.
 
 An invoice's **payment methods** are the rails it offered: `BTC-LN` (Lightning),
 `BTC-CHAIN` (on-chain Bitcoin) and `XMR-CHAIN` (Monero, when the plugin's
