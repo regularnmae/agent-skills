@@ -1,6 +1,6 @@
 ---
 name: victoria-logs
-description: Search this host's log history -- every container's stdout and the host scripts' output -- with LogsQL through the read-only victoria-logs MCP server or the agent-mcp CLI. Use to find out why a service failed, who is spamming the journal, or whether the log pipeline is still shipping.
+description: Search this host's log history -- every container's stdout, the host scripts' output, and the proxy's request and error logs -- with LogsQL through the read-only victoria-logs MCP server or the agent-mcp CLI. Use to find out why a service failed, who is spamming the journal, what a client asked the proxy for, or whether the log pipeline is still shipping.
 ---
 
 # VictoriaLogs
@@ -30,8 +30,15 @@ below apply either way.
 
 ## The store
 
-`vector` ships journald into VictoriaLogs, so every container's stdout and every
-host script's output is in there. The fields these tools return:
+`vector` ships journald, so every container's stdout and every host script's
+output is in there. Two sources are files rather than stdout and arrive through
+the same shipper: Suricata's `eve.json`, and nginx-proxy-manager's **access and
+error logs**. The second is the one to reach for when the question is about a
+request rather than a service -- it is the only record of what a client asked
+the proxy for (Suricata sees ciphertext on the wire), and it keeps
+`LOGS_RETENTION` instead of logrotate's two days.
+
+The fields these tools return:
 
 | Field | Meaning |
 | --- | --- |
@@ -41,11 +48,21 @@ host script's output is in there. The fields these tools return:
 | `unit` | The systemd unit, for host-script output |
 | `host` | The machine-id-derived host label |
 | `priority` | `emerg` … `debug`; BoltMesh's app level overrides journald's |
+| `log_type` | file sources only: `npm_access`, `npm_error`, `npm_raw` |
 
 A host script has a `unit` and no `container`; a container has both `container`
-and its own `host`. Suricata's alerts have a `unit` (`suricata.service`) and
-extra fields this server does not return — use `scripts/logs.sh --json` on the
-host when you need those.
+and its own `host`. A file source adds its own fields on top: Suricata's alerts
+keep `unit` (`suricata.service`), NPM's rows keep
+`container=nginx-proxy-manager` and a `log_type`.
+
+Most of those extra fields are filterable but **not returned**, to keep an
+answer to a size a model can read. NPM rows carry `remote_addr`, `vhost`,
+`method`, `path`, `http_status`, `upstream_status` and `user_agent` (access) or
+`level`, `request` and `vhost` (error) -- filter on them, then read the whole
+row with `scripts/logs.sh --json` on the host. An access row's message already
+reads `<client> <METHOD> <scheme> <vhost> "<path>" <status>`, and an error row's
+`priority` comes from nginx's own `[error]`/`[warn]`, so
+`priority:in(emerg,alert,crit,err)` is how an upstream failure is found.
 
 ## LogsQL
 
@@ -56,9 +73,14 @@ whole retention by accident. Everything after that is the store's language:
 container:"bitcoind"                          one container
 unit:"monitor.service"                        one host script
 priority:in(emerg,alert,crit,err)             error and worse
+log_type:"npm_access" ~"/.env"                probe attempts, from the proxy's own log
 ~"timeout|refused"                            a regex over the message
 container:"lightningd" | stats count() as n   a pipe
 ```
+
+A backslash inside a LogsQL quoted string is itself escaped, so a regex for a
+literal dot is `~"\\."` -- `~"\."` is rejected. `scripts/logs.sh --grep` doubles
+them for you; a hand-written `query` does not.
 
 `since` takes a duration (`15m`, `2h`, `7d`) or an RFC3339 instant
 (`2026-11-02T10:00:00Z`) — the latter for "since that deploy".

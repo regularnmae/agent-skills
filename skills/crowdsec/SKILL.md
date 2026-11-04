@@ -65,7 +65,14 @@ operator block added by hand.
 - **`check_ip`'s `enforceable` is the interesting field.** The host's bouncer
   refuses private space and every address the host itself holds, so a decision
   on `10.89.0.5` exists and is never applied. `enforceable: false` means "do not
-  expect this to drop anything".
+  expect this to drop anything". It also refuses the operator's **own public
+  address** (`STACK_WAN_IP` in the stack) -- every check that leaves that host
+  comes back through the router with it as the source, so a ban there would cut
+  the operator's own monitoring and agent traffic -- but this server cannot see
+  that declaration: `enforceable` is computed from the address alone
+  (`ipaddress.is_global`), so for that one address it answers `true` while the
+  bouncer declines. Read it as "the address is routable", not "the host will
+  enforce it".
 - **`get_engine_health` is a snapshot, not a rate.** Counters are cumulative
   since the engine started; ask twice to see movement. `machines[*].heartbeat_age_seconds`
   is the one freshness signal: if it grows, the log processor has stopped even
@@ -89,7 +96,11 @@ operator block added by hand.
   private space and the host's own addresses on purpose. If something needs
   blocking, that is an operator action on the host.
 - **No bouncer list.** The LAPI has no such endpoint; enforcement freshness is
-  `$DATA_DIR/audit/bouncer.status` (which the monitor pages on).
+  `$DATA_DIR/audit/bouncer.status` (which the monitor pages on). Two fields there
+  are worth knowing: `banned=` is what actually went into the nftables set, and
+  `skipped=` is how many decisions enforcement declined because they name an
+  address the host holds or its own public address — so `banned=0 skipped=1` is
+  "a decision exists and is deliberately not applied", not a broken applier.
 
 ## Common questions
 
